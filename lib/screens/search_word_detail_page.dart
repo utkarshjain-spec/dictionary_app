@@ -1,36 +1,37 @@
+import 'package:dictionary_app/constants.dart';
+
+import 'package:dictionary_app/models/definition_modal.dart';
+
+import 'package:dictionary_app/models/word_example_modal.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:dictionary_app/constants.dart';
-import 'package:dictionary_app/local_data_saver.dart';
-import 'package:dictionary_app/states/day_word_state.dart';
+import '../constants.dart';
+import '../local_data_saver.dart';
+import '../states/day_word_state.dart';
 
-class DetailPage extends StatefulWidget {
-  String dailyWord;
-  DetailPage({
+class SearchWordDetailPage extends StatefulWidget {
+  String? word;
+  List<DefinitionModel>? definition;
+  WordExampleModal? example;
+
+  SearchWordDetailPage({
     Key? key,
-    required this.dailyWord,
+    this.word,
   }) : super(key: key);
 
   @override
-  State<DetailPage> createState() => _DetailPageState();
+  State<SearchWordDetailPage> createState() => _SearchWordDetailPageState();
 }
 
-class _DetailPageState extends State<DetailPage> {
+class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
   List<String>? _words;
   List<String>? _historyWords = [];
-  bool isSelected = false;
-  // List<String> _words = [];
-  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-
-  String? word;
-  String? Definition;
-  late DateTime _dateTime;
-  String? date;
   bool isUserLoggedIn = false;
   Future<bool?> checkUser() async {
     final FirebaseAuth auth = FirebaseAuth.instance;
@@ -44,92 +45,111 @@ class _DetailPageState extends State<DetailPage> {
     }
   }
 
+  // @override
+  // void dispose() {
+  //   // TtsState ttsState = TtsState.stopped;
+  //   _stop();
+  //   super.dispose();
+  // }
+
+  // Future _stop() async {
+  //   await flutterTts.stop();
+  // }
+
   @override
   void initState() {
-    LocalDataSaver.getSaveWord().then((value) {
-      setState(() {
-        _words = value;
-        setState(() {});
-      });
-    });
-
     checkUser();
 
     LocalDataSaver.getHistory().then((value) {
       setState(() {
         if (value != null) {
           _historyWords = value;
+        } else {
+          _historyWords = [];
         }
+
+        // SavedWords.history = value!;
       });
     }).then((value) {
-      if (widget.dailyWord != null) {
-        if (!_historyWords!.contains(widget.dailyWord)) {
-          // _historyWords!.remove(word ?? "");
+      if (widget.word != null) {
+        // SavedWords.history.add(widget.word ?? "");
 
-          _historyWords!.add(widget.dailyWord);
-
+        if (_historyWords?.contains(widget.word) == false) {
+          _historyWords?.add(widget.word!);
           LocalDataSaver.setHistory(_historyWords!);
         }
       }
     });
+
+    // if(widget.word != null) {
+
+    //    SavedWords.history.add(widget.word??"");
+
+    // }
+
     LocalDataSaver.getSaveWord().then((value) {
       setState(() {
         _words = value;
-        SavedWords.savedWords = value!;
         setState(() {});
       });
     });
 
-    _dateTime = DateTime.now();
-    date = _dateTime.year.toString() +
-        '-' +
-        _dateTime.month.toString() +
-        '-' +
-        _dateTime.day.toString();
-
-    var wordState = Provider.of<WordState>(context, listen: false);
-    wordState.getDayWord(date).then((value) {
-      setState(() {
-        word = wordState.dayWord?.word;
-        Definition = wordState.dayWord?.definitions?[0].text;
-      });
-    }).then((value) {
-      // SavedWords.history.add(word ?? "");
-      // LocalDataSaver.setHistory(SavedWords.history);
-    });
-
-    _prefs.then((prefs) {
-      isSelected = prefs.getBool('isSelected')!;
+    Provider.of<WordState>(context, listen: false)
+        .getWordExamples(widget.word ?? "")
+        .then((value) {
+      widget.example = value;
       setState(() {});
     });
-
+    Provider.of<WordState>(context, listen: false)
+        .getWordDefinitions(widget.word ?? "")
+        .then((value) {
+      widget.definition = value;
+      setState(() {});
+    });
     // TODO: implement initState
     super.initState();
   }
 
   FlutterTts flutterTts = FlutterTts();
+  // @override
+  // void dispose() async {
+
+  // flutterTts.setCompletionHandler(() async {
+  // await flutterTts.sto
+
+  // setState(() {});
+  // });
+
+  //   // TODO: implement dispose
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
     LocalDataSaver.getSaveWord().then((value) {
       setState(() {
         _words = value;
+        // SavedWords.savedWords = value!;
         setState(() {});
       });
     });
-    bool alreadySaved = _words?.contains(word) ?? false;
-    // setState(() {});
+    final bool alreadySaved = _words?.contains(widget.word) ?? false;
+    setState(() {});
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
         title: Text('Word Detail Page'),
         actions: [
           IconButton(
-              onPressed: () {
+            onPressed: () {
+              if (widget.definition != null) {
                 Share.share(
-                    "word: ${word.toString()} \n Definition: ${Definition.toString()}");
-              },
-              icon: Icon(Icons.share)),
+                    "word: ${widget.word.toString()} \n Definition: ${widget.definition?[0].text.toString()}");
+              }
+            },
+            icon: Icon(Icons.share),
+          ),
           SizedBox(width: 16),
         ],
       ),
@@ -161,7 +181,7 @@ class _DetailPageState extends State<DetailPage> {
                             ),
                             SizedBox(width: 16),
                             Text(
-                              value.dayWord?.word ?? "",
+                              widget.word ?? "",
                               style: TextStyle(fontSize: 20),
                             ),
                           ],
@@ -169,42 +189,64 @@ class _DetailPageState extends State<DetailPage> {
                         Row(
                           children: [
                             IconButton(
-                                onPressed: () {
-                                  flutterTts.speak(value.dayWord?.word ?? "");
-                                  // for (int i = 0;
-                                  //     i < value.dayWord!.definitions!.length;
-                                  //     i++) {
-                                  //   Future.delayed(Duration(seconds: 3), () {
-                                  //     flutterTts.speak(
-                                  //         value.dayWord?.definitions?[i].text ??
-                                  //             "");
-                                  //   });
-                                  // }
-                                  // for (int i = 0;
-                                  //     i < value.dayWord!.examples!.length;
-                                  //     i++) {
-                                  //   Future.delayed(Duration(seconds: 5), () {
-                                  //     flutterTts.speak(
-                                  //         value.dayWord?.examples?[i].text ??
-                                  //             "");
-                                  //   });
-                                  // }
+                                onPressed: () async {
+                                  if (widget.definition != null &&
+                                      widget.example != null) {
+                                    // Future.delayed(Duration(seconds: 1),
+                                    //     () async {
+                                    await flutterTts.speak(widget.word ?? "");
+                                    // }
+                                    // );
+
+                                    // for (int i = 0;
+                                    //     i < widget.definition!.length;
+                                    //     i++) {
+                                    //   Future.delayed(Duration(seconds: 3),
+                                    //       () async {
+                                    //     flutterTts.speak(
+                                    //         await widget.definition?[i].text ??
+                                    //             "");
+                                    //   });
+                                    // }
+                                    // for (int i = 0;
+                                    //     i < widget.example!.examples!.length;
+                                    //     i++) {
+                                    //   Future.delayed(Duration(seconds: 5),
+                                    //       () async {
+                                    //     await flutterTts.speak(
+                                    //         widget.example?.examples?[i].text ??
+                                    //             "");
+                                    //   });
+                                    // }
+                                  }
                                 },
                                 icon: Icon(Icons.volume_up)),
                             isUserLoggedIn
                                 ? IconButton(
                                     onPressed: () {
+                                      // if (_words != null) {
+                                      //   if (SavedWords.savedWords
+                                      //       .contains(widget.word ?? "")) {
+                                      //     SavedWords.savedWords
+                                      //         .remove(widget.word ?? "");
+                                      //     // setState(() {});
+                                      //   } else {
+                                      //     SavedWords.savedWords
+                                      //         .add(widget.word ?? "");
+                                      //     // setState(() {});
+                                      //   }
+                                      // }
                                       LocalDataSaver.getSaveWord()
                                           .then((value) {
                                         setState(() {
                                           _words = value;
-                                          if (_words != null && word != null) {
-                                            if (_words!.contains(word)) {
-                                              _words!.remove(word);
+                                          if (_words != null) {
+                                            if (_words!.contains(widget.word)) {
+                                              _words!.remove(widget.word);
                                               LocalDataSaver.setSaveWord(
                                                   _words!);
                                             } else {
-                                              _words!.add(word!);
+                                              _words!.add(widget.word ?? "");
                                               LocalDataSaver.setSaveWord(
                                                   _words!);
                                             }
@@ -218,9 +260,6 @@ class _DetailPageState extends State<DetailPage> {
                                       LocalDataSaver.setSaveWord(
                                           SavedWords.savedWords);
                                       setState(() {});
-                                      // } else {
-
-                                      // }
                                     },
                                     icon: alreadySaved != null
                                         ? alreadySaved
@@ -235,7 +274,7 @@ class _DetailPageState extends State<DetailPage> {
                                   )
                                 : Text("")
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -252,15 +291,15 @@ class _DetailPageState extends State<DetailPage> {
                         ),
                         SizedBox(height: 10),
                         ListView.builder(
-                          itemCount: value.dayWord?.definitions?.length,
+                          itemCount: widget.definition?.length ?? 0,
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: ((context, index) {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(value.dayWord?.definitions?[index].text ??
-                                    ""),
+                                Text(widget.definition?[index].text ??
+                                    "" + "\n"),
                                 SizedBox(height: 10),
                               ],
                             );
@@ -287,13 +326,13 @@ class _DetailPageState extends State<DetailPage> {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                    value.dayWord?.examples?[index].text ?? ""),
+                                Text(widget.example?.examples?[index].text ??
+                                    ""),
                                 SizedBox(height: 10),
                               ],
                             );
                           }),
-                          itemCount: value.dayWord?.examples?.length,
+                          itemCount: widget.example?.examples?.length ?? 0,
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
                         ),

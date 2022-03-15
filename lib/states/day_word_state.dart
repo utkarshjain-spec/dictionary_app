@@ -1,5 +1,8 @@
+import 'package:dictionary_app/models/definition_modal.dart';
+import 'package:dictionary_app/models/random_words.dart';
 import 'package:dictionary_app/models/search_word_model.dart';
 import 'package:dictionary_app/models/word_audio_model.dart';
+import 'package:dictionary_app/models/word_example_modal.dart';
 import 'package:dictionary_app/services/api_services.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +14,13 @@ class WordState extends ChangeNotifier {
   DayWord? get dayWord => _dayWord;
   set dayWord(DayWord? value) {
     _dayWord = value;
+    notifyListeners();
+  }
+
+  DayWord? _dayWord1;
+  DayWord? get dayWord1 => _dayWord1;
+  set dayWord1(DayWord? value) {
+    _dayWord1 = value;
     notifyListeners();
   }
 
@@ -28,9 +38,16 @@ class WordState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> getDayWord() async {
-    await _apiServices.getDayWord().then((value) {
+  Future<bool> getDayWord(String? date) async {
+    await _apiServices.getDayWord(date).then((value) {
       dayWord = value;
+    });
+    return true;
+  }
+
+  Future<bool> getSelectedDateWOrd(String? date) async {
+    await _apiServices.getSelectedDateWOrd(date).then((value) {
+      dayWord1 = value;
     });
     return true;
   }
@@ -45,7 +62,25 @@ class WordState extends ChangeNotifier {
   Future<WordAudioModel> getWordSound(String word) async {
     return _apiServices.getWordSound(word).then((value) {
       wordAudioModel = value;
-      return value;
+      return value!;
+    });
+  }
+
+  Future<List<RandomWordModel>> getRandomWord() async {
+    return _apiServices.getRandomWord().then((value) {
+      return value!;
+    });
+  }
+
+  Future<List<DefinitionModel>> getWordDefinitions(String word) async {
+    return _apiServices.getWordDefinitions(word).then((value) {
+      return value!;
+    });
+  }
+
+  Future<WordExampleModal> getWordExamples(String word) async {
+    return _apiServices.getWordExamples(word).then((value) {
+      return value!;
     });
   }
 }

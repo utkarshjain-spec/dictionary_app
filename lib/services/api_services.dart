@@ -1,6 +1,10 @@
+import 'package:dictionary_app/models/definition_modal.dart';
+import 'package:dictionary_app/models/random_words.dart';
 import 'package:dictionary_app/models/search_word_model.dart';
 import 'package:dictionary_app/models/word_audio_model.dart';
+import 'package:dictionary_app/models/word_example_modal.dart';
 import 'package:dictionary_app/services/api_string_keys.dart';
+import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -12,11 +16,10 @@ class ApiServices {
   static const String apiKey =
       "a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5";
 
-  Future<DayWord> getDayWord() async {
+  Future<DayWord> getDayWord(String? date) async {
     DayWord? _dayWord;
 
-    var url = Uri.parse(
-        "$baseUrl${ApiKeysConst.wordOfTheDayApiString}api_key=${apiKey}");
+    var url = Uri.parse(baseUrl + ApiKeysConst.getWordOfTheDay(date: date));
     var response = await http.get(url);
     if (response.statusCode == 200) {
       var jsonResponse = json.decode(response.body);
@@ -29,11 +32,31 @@ class ApiServices {
     return Future.value(_dayWord);
   }
 
+  Future<DayWord?> getSelectedDateWOrd(String? date) async {
+    DayWord? _dayWord;
+
+    var url = Uri.parse(baseUrl + ApiKeysConst.getWordOfTheDay(date: date));
+    var response = await http.get(url);
+    try {
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        _dayWord = DayWord.fromJson(jsonResponse);
+        return Future.value(_dayWord);
+      } else {
+        print(response.statusCode);
+        throw Exception('Failed to load post');
+      }
+    } catch (e) {
+      return null;
+    }
+    // var jsonResponse = json.decode(response.body);
+    // DayWord _dayword = DayWord.fromJson(jsonResponse);
+  }
+
   Future<SearchWordsModel> getSearchWord() async {
     SearchWordsModel? _searchWordsModel;
 
-    var url = Uri.parse(
-        "https://api.wordnik.com/v4/words.json/randomWords?hasDictionaryDef=true&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&limit=500&api_key=q095std75p9uysknwxmaxeyw0zqzsaa0spj8jln0rm9tiv653");
+    var url = Uri.parse(ApiKeysConst.getSearchWordApiKey);
 
     var response = await http.get(url);
     if (response.statusCode == 200) {
@@ -47,7 +70,7 @@ class ApiServices {
     return Future.value(_searchWordsModel);
   }
 
-  Future<WordAudioModel> getWordSound(String myword) async {
+  Future<WordAudioModel?> getWordSound(String myword) async {
     WordAudioModel? _wordAudioModel;
 
     var url = Uri.parse(baseUrl +
@@ -66,6 +89,88 @@ class ApiServices {
     }
     // var jsonResponse = json.decode(response.body);
     // DayWord _dayword = DayWord.fromJson(jsonResponse);
-    return Future.value(_wordAudioModel);
+    throw Exception('Failed to load word sound');
+  }
+
+  Future<List<DefinitionModel>?> getWordDefinitions(String myword) async {
+    List<DefinitionModel>? _definitionModel;
+
+    var url = Uri.parse(ApiKeysConst.getWordDefinition(
+      word: myword,
+    ));
+
+    var response = await http.get(
+      url,
+    );
+    try {
+      if (response.statusCode == 200) {
+        // var jsonResponse = json.decode(response.body);
+        // _definitionModel = DefinitionModel.fromJson(jsonResponse);
+        _definitionModel = (json.decode(response.body) as List)
+            .map((i) => DefinitionModel.fromJson(i))
+            .toList();
+
+        return Future.value(_definitionModel);
+      } else {
+        throw Exception('Failed to load Data');
+      }
+    } catch (e) {
+      return null;
+    }
+    // var jsonResponse = json.decode(response.body);
+    // DayWord _dayword = DayWord.fromJson(jsonResponse);
+  }
+
+  Future<WordExampleModal?> getWordExamples(String myword) async {
+    WordExampleModal? _wordExampleModal;
+
+    var url = Uri.parse(ApiKeysConst.getWordExample(
+      word: myword,
+    ));
+
+    var response = await http.get(
+      url,
+    );
+    try {
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        _wordExampleModal = WordExampleModal.fromJson(jsonResponse);
+
+        // _wordExampleModal = (json.decode(response.body) as List)
+
+        //     .map((i) => WordExampleModal.fromJson(i))
+        //     .toList();
+        return Future.value(_wordExampleModal);
+      } else {
+        throw Exception('Failed to load Data');
+      }
+    } catch (e) {
+     return null;
+    }
+    // var jsonResponse = json.decode(response.body);
+    // DayWord _dayword = DayWord.fromJson(jsonResponse);
+  }
+
+  Future<List<RandomWordModel>?> getRandomWord() async {
+    List<RandomWordModel>? _randomWordModel;
+
+    var url = Uri.parse(
+        "$baseUrl${ApiKeysConst.RandomWordApiString}api_key=${apiKey}");
+    var response = await http.get(url);
+    try {
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        _randomWordModel = (jsonResponse as List)
+            .map((i) => RandomWordModel.fromJson(i))
+            .toList();
+        return Future.value(_randomWordModel);
+      } else {
+        throw Exception('Failed to load Data');
+      }
+    } catch (e) {
+      return null;
+
+      // print(e);
+    }
   }
 }

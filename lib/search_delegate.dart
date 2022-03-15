@@ -1,23 +1,16 @@
+import 'package:dictionary_app/models/random_words.dart';
+import 'package:dictionary_app/screens/search_word_detail_page.dart';
+import 'package:dictionary_app/states/day_word_state.dart';
 import 'package:flutter/material.dart';
-
-import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Search extends SearchDelegate {
-
-  
-  List<String> data = [
-    "android",
-    "windows",
-    "mac",
-    "linux",
-    "parrotOS",
-    "mint"
-  ];
+  List<String> data = [];
 
   List<String> recentSearch = [
-    "Android",
-    "Windows",
-    "Mac",
+    // "Android",
+    // "Windows",
+    // "Mac",
   ];
 
   @override
@@ -27,7 +20,6 @@ class Search extends SearchDelegate {
           icon: Icon(Icons.clear),
           onPressed: () {
             query = "";
-
           })
     ];
   }
@@ -43,7 +35,6 @@ class Search extends SearchDelegate {
     if (query != null && data.contains(query.toLowerCase())) {
       return ListTile(
         title: Text(query),
-        onTap: () {},
       );
     } else if (query == "") {
       return Text("");
@@ -57,15 +48,52 @@ class Search extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
+    List<RandomWordModel> randomWords;
+    Provider.of<WordState>(context, listen: false)
+        .getRandomWord()
+        .then((value) {
+      randomWords = value;
+      // print(value[0].word);
+      for (int i = 0; i < randomWords.length; i++) {
+        data.add(value[i].word.toString());
+      }
+    });
+
+    final suggestions = query.isEmpty
+        ? recentSearch
+        : data.where((element) {
+            return element.toLowerCase().contains(query.toLowerCase());
+          }).toList();
+
+    return buildSuggestionsSuccess(suggestions);
+
+    // return ListView.builder(
+    //     itemCount: recentSearch.length,
+    //     itemBuilder: (context, index) {
+    //       return ListTile(
+    //         title: Text(recentSearch[index]),
+    //         trailing: Icon(
+    //           Icons.arrow_forward_ios,
+    //         ),
+    //         onTap: () {},
+    //       );
+    //     });
+  }
+
+  Widget buildSuggestionsSuccess(List<String> suggestions) {
     return ListView.builder(
-        itemCount: recentSearch.length,
+        itemCount: suggestions.length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(recentSearch[index]),
+            title: Text(suggestions[index]),
             trailing: Icon(
               Icons.arrow_forward_ios,
             ),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return SearchWordDetailPage(word: suggestions[index]);
+              }));
+            },
           );
         });
   }
