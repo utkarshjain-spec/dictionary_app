@@ -249,7 +249,7 @@ class _HomePageState extends State<HomePage> {
                                             Text(
                                               "Word of the day",
                                               style: TextStyle(
-                                                fontSize: 18,
+                                                fontSize: 16,
                                               ),
                                             ),
                                             SizedBox(
@@ -361,7 +361,7 @@ class _HomePageState extends State<HomePage> {
                                                                     .word ??
                                                                 "",
                                                             style: TextStyle(
-                                                                fontSize: 24,
+                                                                fontSize: 22,
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .w500,
