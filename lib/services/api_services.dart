@@ -146,6 +146,10 @@ class ApiServices {
         //     .map((i) => WordExampleModal.fromJson(i))
         //     .toList();
         return Future.value(_wordExampleModal);
+      } else if (response.statusCode == 404) {
+        print("Not Found");
+      } else if (response.statusCode == 500) {
+        print("server not responding");
       } else {
         throw Exception('Failed to load Data');
       }

@@ -1,15 +1,14 @@
-import 'package:dictionary_app/constants.dart';
-
-import 'package:dictionary_app/models/definition_modal.dart';
-
-import 'package:dictionary_app/models/word_example_modal.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-
+import 'package:html/parser.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+
+import 'package:dictionary_app/constants.dart';
+import 'package:dictionary_app/models/definition_modal.dart';
+import 'package:dictionary_app/models/word_example_modal.dart';
 
 import '../constants.dart';
 import '../local_data_saver.dart';
@@ -48,17 +47,6 @@ class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
     }
   }
 
-  // @override
-  // void dispose() {
-  //   // TtsState ttsState = TtsState.stopped;
-  //   _stop();
-  //   super.dispose();
-  // }
-
-  // Future _stop() async {
-  //   await flutterTts.stop();
-  // }
-
   @override
   void initState() {
     checkUser();
@@ -70,25 +58,15 @@ class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
         } else {
           _historyWords = [];
         }
-
-        // SavedWords.history = value!;
       });
     }).then((value) {
       if (widget.word != null) {
-        // SavedWords.history.add(widget.word ?? "");
-
         if (_historyWords?.contains(widget.word) == false) {
           _historyWords?.add(widget.word!);
           LocalDataSaver.setHistory(_historyWords!);
         }
       }
     });
-
-    // if(widget.word != null) {
-
-    //    SavedWords.history.add(widget.word??"");
-
-    // }
 
     LocalDataSaver.getSaveWord().then((value) {
       setState(() {
@@ -130,6 +108,11 @@ class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
   //   // TODO: implement dispose
   //   super.dispose();
   // }
+  @override
+  void dispose() {
+    super.dispose();
+    flutterTts.stop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +171,7 @@ class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
                                         Color.fromARGB(255, 190, 111, 20),
                                     child: Text("W",
                                         style: TextStyle(
-                                            fontSize: 20,
+                                            fontSize: 24,
                                             color: Colors.white,
                                             fontWeight: FontWeight.w500)),
                                   ),
@@ -206,36 +189,73 @@ class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
                                 children: [
                                   IconButton(
                                       onPressed: () async {
-                                        if (widget.definition != null &&
-                                            widget.example != null) {
-                                          // Future.delayed(Duration(seconds: 1),
-                                          //     () async {
-                                          await flutterTts
-                                              .speak(widget.word ?? "");
-                                          // }
-                                          // );
-
-                                          // for (int i = 0;
-                                          //     i < widget.definition!.length;
-                                          //     i++) {
-                                          //   Future.delayed(Duration(seconds: 3),
-                                          //       () async {
-                                          //     flutterTts.speak(
-                                          //         await widget.definition?[i].text ??
-                                          //             "");
-                                          //   });
-                                          // }
-                                          // for (int i = 0;
-                                          //     i < widget.example!.examples!.length;
-                                          //     i++) {
-                                          //   Future.delayed(Duration(seconds: 5),
-                                          //       () async {
-                                          //     await flutterTts.speak(
-                                          //         widget.example?.examples?[i].text ??
-                                          //             "");
-                                          //   });
-                                          // }
+                                        String text = "";
+                                        if (widget.word != null) {
+                                          text = text + widget.word!;
                                         }
+                                        if (widget.definition != null) {
+                                          for (int i = 0;
+                                              i < widget.definition!.length;
+                                              i++) {
+                                            text = text +
+                                                widget.definition![i].text!;
+                                          }
+                                        }
+                                        if (widget.example != null) {
+                                          for (int i = 0;
+                                              i <
+                                                  widget.example!.examples!
+                                                      .length;
+                                              i++) {
+                                            text = text +
+                                                widget.example!.examples![i]
+                                                    .text!;
+                                          }
+                                        }
+                                        flutterTts.speak(text);
+
+                                        // Future _setAwaitOptions() async {
+                                        //   await flutterTts
+                                        //       .awaitS
+                                        // peakCompletion(true);
+                                        // }
+
+                                        // if (widget.definition != null) {
+                                        //   Future.delayed(Duration(seconds: 1),
+                                        //       () async {
+                                        //     await flutterTts
+                                        //         .speak(widget.word ?? "");
+                                        //     // _setAwaitOptions();
+                                        //   });
+
+                                        //   for (int i = 0;
+                                        //       i < widget.definition!.length;
+                                        //       i++) {
+                                        //     Future.delayed(Duration(seconds: 3),
+                                        //         () async {
+                                        //       flutterTts.speak(await widget
+                                        //               .definition?[i].text ??
+                                        //           "");
+                                        //     });
+                                        //   }
+                                        //   if (widget.example != null) {
+                                        //     for (int i = 0;
+                                        //         i <
+                                        //             widget.example!.examples!
+                                        //                 .length;
+                                        //         i++) {
+                                        //       Future.delayed(
+                                        //           Duration(seconds: 5),
+                                        //           () async {
+                                        //         await flutterTts.speak(widget
+                                        //                 .example
+                                        //                 ?.examples?[i]
+                                        //                 .text ??
+                                        //             "");
+                                        //       });
+                                        //     }
+                                        //   }
+                                        // }
                                       },
                                       icon: Icon(Icons.volume_up)),
                                   isUserLoggedIn
@@ -323,8 +343,11 @@ class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(widget.definition?[index].text ??
-                                          "No definition Found" + "\n"),
+                                      Text(parse(
+                                              widget.definition?[index].text ??
+                                                  "No definition Found" + "\n")
+                                          .body!
+                                          .text),
                                       SizedBox(height: 10),
                                     ],
                                   );

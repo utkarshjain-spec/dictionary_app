@@ -112,6 +112,12 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   FlutterTts flutterTts = FlutterTts();
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    flutterTts.stop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -180,24 +186,61 @@ class _DetailPageState extends State<DetailPage> {
                                 children: [
                                   IconButton(
                                       onPressed: () {
+                                        String text = "";
+
+                                        if (value.dayWord?.word != null) {
+                                          text = text + value.dayWord!.word!;
+                                        }
+                                        if (value.dayWord!.definitions !=
+                                            null) {
+                                          for (int i = 0;
+                                              i <
+                                                  value.dayWord!.definitions!
+                                                      .length;
+                                              i++) {
+                                            text = text +
+                                                value.dayWord!.definitions![i]
+                                                    .text!;
+                                          }
+                                        }
+                                        if (value.dayWord!.examples!.length !=
+                                            null) {
+                                          for (int i = 0;
+                                              i <
+                                                  value.dayWord!.examples!
+                                                      .length;
+                                              i++) {
+                                            text = text +
+                                                value.dayWord!.examples![i]
+                                                    .text!;
+                                          }
+                                        }
                                         flutterTts
                                             .speak(value.dayWord?.word ?? "");
+
+                                        // flutterTts
+                                        //     .speak(value.dayWord?.word ?? "");
+
                                         // for (int i = 0;
-                                        //     i < value.dayWord!.definitions!.length;
+                                        //     i <
+                                        //         value.dayWord!.definitions!
+                                        //             .length;
                                         //     i++) {
-                                        //   Future.delayed(Duration(seconds: 3), () {
-                                        //     flutterTts.speak(
-                                        //         value.dayWord?.definitions?[i].text ??
-                                        //             "");
+                                        //   Future.delayed(Duration(seconds: 2),
+                                        //       () {
+                                        //     flutterTts.speak(value.dayWord
+                                        //             ?.definitions?[i].text ??
+                                        //         "");
                                         //   });
                                         // }
                                         // for (int i = 0;
                                         //     i < value.dayWord!.examples!.length;
                                         //     i++) {
-                                        //   Future.delayed(Duration(seconds: 5), () {
-                                        //     flutterTts.speak(
-                                        //         value.dayWord?.examples?[i].text ??
-                                        //             "");
+                                        //   Future.delayed(Duration(seconds: 5),
+                                        //       () {
+                                        //     flutterTts.speak(value.dayWord
+                                        //             ?.examples?[i].text ??
+                                        //         "");
                                         //   });
                                         // }
                                       },

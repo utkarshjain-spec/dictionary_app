@@ -30,7 +30,7 @@ class _HistoryClassState extends State<HistoryClass> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 25, 85, 134),
-        title: Text('history of words'),
+        title: Text('List of history words'),
       ),
       body: Column(
         children: <Widget>[

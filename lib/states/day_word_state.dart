@@ -72,15 +72,23 @@ class WordState extends ChangeNotifier {
     });
   }
 
-  Future<List<DefinitionModel>> getWordDefinitions(String word) async {
+  Future<List<DefinitionModel>?> getWordDefinitions(String word) async {
     return _apiServices.getWordDefinitions(word).then((value) {
-      return value!;
+      if (value != null) {
+        return value;
+      } else {
+        return null;
+      }
     });
   }
 
-  Future<WordExampleModal> getWordExamples(String word) async {
+  Future<WordExampleModal?> getWordExamples(String word) async {
     return _apiServices.getWordExamples(word).then((value) {
-      return value!;
+      if (value != null) {
+        return value;
+      } else {
+        return null;
+      }
     });
   }
 }
