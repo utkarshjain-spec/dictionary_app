@@ -29,6 +29,7 @@ class _HistoryClassState extends State<HistoryClass> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 25, 85, 134),
         title: Text('history of words'),
       ),
       body: Column(
@@ -47,8 +48,14 @@ class _HistoryClassState extends State<HistoryClass> {
                                     word: _words[index],
                                   )));
                     },
-                    child: ListTile(
-                      title: Text("${index + 1}. " + _words[index]),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 2),
+                      child: Card(
+                        child: ListTile(
+                          title: Text("${index + 1}. " + _words[index]),
+                        ),
+                      ),
                     ),
                   );
                 }),

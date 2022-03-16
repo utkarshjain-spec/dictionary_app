@@ -14,23 +14,34 @@ class _AppSettingState extends State<AppSetting> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 25, 85, 134),
         title: const Text('Setting'),
       ),
       body: Center(
-        child: InkWell(
-            onTap: () {
-              signOut().then((value) {
-              
-                Navigator.pushAndRemoveUntil(context,
-                    MaterialPageRoute(builder: ((context) {
-                  return SplashScreen();
-                })), (route) => false);
-              });
+          child: ElevatedButton(
+        style: ButtonStyle(
+            padding: MaterialStateProperty.resolveWith<EdgeInsetsGeometry>(
+              (Set<MaterialState> states) {
+                return EdgeInsets.symmetric(horizontal: 25, vertical: 15);
+              },
+            ),
+            backgroundColor:
+                MaterialStateProperty.all(Color.fromARGB(255, 25, 85, 134))),
 
-              
-            },
-            child: Text('logout')),
-      ),
+        // style: Button,
+        onPressed: () {
+          signOut().then((value) {
+            Navigator.pushAndRemoveUntil(context,
+                MaterialPageRoute(builder: ((context) {
+              return SplashScreen();
+            })), (route) => false);
+          });
+        },
+        child: Text(
+          "Logout",
+          style: TextStyle(color: Colors.white),
+        ),
+      )),
     );
   }
 }

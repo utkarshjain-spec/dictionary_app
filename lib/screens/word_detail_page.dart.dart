@@ -23,6 +23,8 @@ class DetailPage extends StatefulWidget {
 class _DetailPageState extends State<DetailPage> {
   List<String>? _words;
   List<String>? _historyWords = [];
+  bool isDefinitionLoaded = false;
+  bool isExampleLoaded = false;
   bool isSelected = false;
   // List<String> _words = [];
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
@@ -90,6 +92,8 @@ class _DetailPageState extends State<DetailPage> {
     var wordState = Provider.of<WordState>(context, listen: false);
     wordState.getDayWord(date).then((value) {
       setState(() {
+        isExampleLoaded = true;
+        isDefinitionLoaded = true;
         word = wordState.dayWord?.word;
         Definition = wordState.dayWord?.definitions?[0].text;
       });
@@ -99,7 +103,7 @@ class _DetailPageState extends State<DetailPage> {
     });
 
     _prefs.then((prefs) {
-      isSelected = prefs.getBool('isSelected')!;
+      isSelected = prefs.getBool('isSelected') ?? false;
       setState(() {});
     });
 
@@ -121,6 +125,7 @@ class _DetailPageState extends State<DetailPage> {
     // setState(() {});
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 25, 85, 134),
         centerTitle: false,
         title: Text('Word Detail Page'),
         actions: [
@@ -133,179 +138,204 @@ class _DetailPageState extends State<DetailPage> {
           SizedBox(width: 16),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Consumer<WordState>(
-          builder: (BuildContext context, value, Widget? child) {
-            return Column(
-              children: [
-                SizedBox(
-                  height: 10,
-                ),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 15.0, vertical: 15),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundColor:
-                                  Color.fromARGB(255, 190, 111, 20),
-                              child: Text("W",
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w500)),
-                            ),
-                            SizedBox(width: 16),
-                            Text(
-                              value.dayWord?.word ?? "",
-                              style: TextStyle(fontSize: 20),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            IconButton(
-                                onPressed: () {
-                                  flutterTts.speak(value.dayWord?.word ?? "");
-                                  // for (int i = 0;
-                                  //     i < value.dayWord!.definitions!.length;
-                                  //     i++) {
-                                  //   Future.delayed(Duration(seconds: 3), () {
-                                  //     flutterTts.speak(
-                                  //         value.dayWord?.definitions?[i].text ??
-                                  //             "");
-                                  //   });
-                                  // }
-                                  // for (int i = 0;
-                                  //     i < value.dayWord!.examples!.length;
-                                  //     i++) {
-                                  //   Future.delayed(Duration(seconds: 5), () {
-                                  //     flutterTts.speak(
-                                  //         value.dayWord?.examples?[i].text ??
-                                  //             "");
-                                  //   });
-                                  // }
-                                },
-                                icon: Icon(Icons.volume_up)),
-                            isUserLoggedIn
-                                ? IconButton(
-                                    onPressed: () {
-                                      LocalDataSaver.getSaveWord()
-                                          .then((value) {
-                                        setState(() {
-                                          _words = value;
-                                          if (_words != null && word != null) {
-                                            if (_words!.contains(word)) {
-                                              _words!.remove(word);
-                                              LocalDataSaver.setSaveWord(
-                                                  _words!);
-                                            } else {
-                                              _words!.add(word!);
-                                              LocalDataSaver.setSaveWord(
-                                                  _words!);
-                                            }
-                                          }
+      body: SingleChildScrollView(child: LayoutBuilder(
+        builder: ((context, constraints) {
+          if (isDefinitionLoaded && isExampleLoaded) {
+            return Consumer<WordState>(
+              builder: (BuildContext context, value, Widget? child) {
+                return Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor:
+                                        Color.fromARGB(255, 190, 111, 20),
+                                    child: Text("W",
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500)),
+                                  ),
+                                  SizedBox(width: 16),
+                                  Text(
+                                    value.dayWord?.word ?? "",
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                      onPressed: () {
+                                        flutterTts
+                                            .speak(value.dayWord?.word ?? "");
+                                        // for (int i = 0;
+                                        //     i < value.dayWord!.definitions!.length;
+                                        //     i++) {
+                                        //   Future.delayed(Duration(seconds: 3), () {
+                                        //     flutterTts.speak(
+                                        //         value.dayWord?.definitions?[i].text ??
+                                        //             "");
+                                        //   });
+                                        // }
+                                        // for (int i = 0;
+                                        //     i < value.dayWord!.examples!.length;
+                                        //     i++) {
+                                        //   Future.delayed(Duration(seconds: 5), () {
+                                        //     flutterTts.speak(
+                                        //         value.dayWord?.examples?[i].text ??
+                                        //             "");
+                                        //   });
+                                        // }
+                                      },
+                                      icon: Icon(Icons.volume_up)),
+                                  isUserLoggedIn
+                                      ? IconButton(
+                                          onPressed: () {
+                                            LocalDataSaver.getSaveWord()
+                                                .then((value) {
+                                              setState(() {
+                                                _words = value;
+                                                if (_words != null &&
+                                                    word != null) {
+                                                  if (_words!.contains(word)) {
+                                                    _words!.remove(word);
+                                                    LocalDataSaver.setSaveWord(
+                                                        _words!);
+                                                  } else {
+                                                    _words!.add(word!);
+                                                    LocalDataSaver.setSaveWord(
+                                                        _words!);
+                                                  }
+                                                }
 
-                                          SavedWords.savedWords = value!;
-                                          setState(() {});
-                                        });
-                                      });
+                                                SavedWords.savedWords = value!;
+                                                setState(() {});
+                                              });
+                                            });
 
-                                      LocalDataSaver.setSaveWord(
-                                          SavedWords.savedWords);
-                                      setState(() {});
-                                      // } else {
+                                            LocalDataSaver.setSaveWord(
+                                                SavedWords.savedWords);
+                                            setState(() {});
+                                            // } else {
 
-                                      // }
-                                    },
-                                    icon: alreadySaved != null
-                                        ? alreadySaved
-                                            ? Icon(
-                                                Icons.favorite,
-                                                color: alreadySaved
-                                                    ? Colors.red
-                                                    : Colors.black,
-                                              )
-                                            : Icon(Icons.favorite_border)
-                                        : Text("data"),
-                                  )
-                                : Text("")
-                          ],
-                        )
-                      ],
-                    ),
+                                            // }
+                                          },
+                                          icon: alreadySaved != null
+                                              ? alreadySaved
+                                                  ? Icon(
+                                                      Icons.favorite,
+                                                      color: alreadySaved
+                                                          ? Colors.red
+                                                          : Colors.black,
+                                                    )
+                                                  : Icon(Icons.favorite_border)
+                                              : Text("data"),
+                                        )
+                                      : Text("")
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Definations',
+                                style:
+                                    TextStyle(color: Colors.red, fontSize: 16),
+                              ),
+                              SizedBox(height: 10),
+                              ListView.builder(
+                                itemCount: value.dayWord?.definitions?.length,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: ((context, index) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(value.dayWord?.definitions?[index]
+                                              .text ??
+                                          ""),
+                                      SizedBox(height: 10),
+                                    ],
+                                  );
+                                }),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Examples',
+                                style:
+                                    TextStyle(color: Colors.red, fontSize: 16),
+                              ),
+                              SizedBox(height: 10),
+                              ListView.builder(
+                                itemBuilder: ((context, index) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(value
+                                              .dayWord?.examples?[index].text ??
+                                          ""),
+                                      SizedBox(height: 10),
+                                    ],
+                                  );
+                                }),
+                                itemCount: value.dayWord?.examples?.length,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Definations',
-                          style: TextStyle(color: Colors.red, fontSize: 16),
-                        ),
-                        SizedBox(height: 10),
-                        ListView.builder(
-                          itemCount: value.dayWord?.definitions?.length,
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemBuilder: ((context, index) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(value.dayWord?.definitions?[index].text ??
-                                    ""),
-                                SizedBox(height: 10),
-                              ],
-                            );
-                          }),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 10),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Examples',
-                          style: TextStyle(color: Colors.red, fontSize: 16),
-                        ),
-                        SizedBox(height: 10),
-                        ListView.builder(
-                          itemBuilder: ((context, index) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                    value.dayWord?.examples?[index].text ?? ""),
-                                SizedBox(height: 10),
-                              ],
-                            );
-                          }),
-                          itemCount: value.dayWord?.examples?.length,
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                );
+              },
             );
-          },
-        ),
-      ),
+          } else {
+            return SizedBox(
+              height: MediaQuery.of(context).size.height / 1.3,
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+        }),
+      )),
     );
   }
 }

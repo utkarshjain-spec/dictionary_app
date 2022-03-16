@@ -44,6 +44,8 @@ class _HomePageState extends State<HomePage> {
   List<RandomWordModel>? randomWordModel;
   late DateTime _dateTime;
   String? date;
+  bool isDayWordLoading = false;
+  bool isWordOfDaysLoading = false;
 
   AudioPlayer audioPlayer = AudioPlayer();
   @override
@@ -57,8 +59,12 @@ class _HomePageState extends State<HomePage> {
         _dateTime.month.toString() +
         '-' +
         _dateTime.day.toString();
-    dictionaryWordState.getDayWord(date);
+    dictionaryWordState.getDayWord(date).then((value) {
+      isDayWordLoading = true;
+      setState(() {});
+    });
     dictionaryWordState.getRandomWord().then((value) {
+      isWordOfDaysLoading = true;
       randomWordModel = value;
       setState(() {});
     });
@@ -183,6 +189,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         appBar: AppBar(
+          backgroundColor: Color.fromARGB(255, 25, 85, 134),
           title: Text(isUserLoggedIn ? currentUserName ?? "" : 'Guest'),
           actions: [
             IconButton(
@@ -201,171 +208,184 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         body: SingleChildScrollView(
-          child: Column(
-            children: [
-              Consumer<WordState>(
-                  builder: (BuildContext context, value, child) {
-                return value.dayWord?.word != null
-                    ? Container(
-                        height: MediaQuery.of(context).size.height * 0.22,
-                        width: double.infinity,
-                        child: Card(
-                            elevation: 10,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Word of the Day",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(value.dayWord?.word ?? "",
-                                          style: TextStyle(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.red)),
-                                      IconButton(
-                                          onPressed: () {
-                                            flutterTts.speak(
-                                                value.dayWord?.word ?? "");
-
-                                            // Provider.of<WordState>(context, listen: false)
-                                            //     .getWordSound(value.dayWord?.word ?? "")
-                                            //     .then((value) {
-                                            //   audioPlayer.play(value.fileUrl!);
-                                            // });
-                                          },
-                                          icon: Icon(Icons.volume_up))
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Text(
-                                    "${value.dayWord?.publishDate?.year.toString() ?? ""}-${value.dayWord?.publishDate?.month.toString() ?? ""}-${value.dayWord?.publishDate?.day.toString() ?? ""}",
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => DetailPage(
-                                                    dailyWord:
-                                                        value.dayWord?.word ??
-                                                            "",
-                                                  )));
-                                    },
-                                    child: Text("Click here to more detail",
-                                        style: TextStyle(
-                                            fontSize: 16, color: Colors.blue)),
-                                  ),
-                                ],
-                              ),
-                            )),
-                      )
-                    : CircularProgressIndicator();
-              }),
-              SizedBox(
-                height: 10,
-              ),
-              Text(
-                "Word of days",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              randomWordModel != null
-                  ? Container(
-                      height: MediaQuery.of(context).size.height * 0.6,
-                      child: ListView.builder(
-                          itemCount: randomWordModel?.length ?? 0,
-                          itemBuilder: ((context, index) {
-                            return Container(
-                              width: double.infinity,
+            child: LayoutBuilder(builder: ((context, constraints) {
+          if (isDayWordLoading && isWordOfDaysLoading) {
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: Column(
+                children: [
+                  Consumer<WordState>(
+                      builder: (BuildContext context, value, child) {
+                    return value.dayWord?.word != null
+                        ? Container(
+                            height: MediaQuery.of(context).size.height * 0.22,
+                            width: double.infinity,
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => DetailPage(
+                                              dailyWord:
+                                                  value.dayWord?.word ?? "",
+                                            )));
+                              },
                               child: Card(
-                                  shape: BeveledRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(15),
-                                        bottomRight: Radius.circular(15)),
-                                  ),
-                                  elevation: 10,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5)),
+                                  elevation: 4,
                                   child: Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 10),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
+                                        Text(
+                                          "Word of the day",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
                                         Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text(
-                                                randomWordModel?[index].word ??
-                                                    "",
+                                            Text(value.dayWord?.word ?? "",
                                                 style: TextStyle(
                                                     fontSize: 24,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.red)),
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.black)),
                                             IconButton(
                                                 onPressed: () {
                                                   flutterTts.speak(
-                                                      randomWordModel?[index]
-                                                              .word ??
+                                                      value.dayWord?.word ??
                                                           "");
+
+                                                  // Provider.of<WordState>(context, listen: false)
+                                                  //     .getWordSound(value.dayWord?.word ?? "")
+                                                  //     .then((value) {
+                                                  //   audioPlayer.play(value.fileUrl!);
+                                                  // });
                                                 },
                                                 icon: Icon(Icons.volume_up))
                                           ],
                                         ),
                                         SizedBox(
-                                          height: 2,
+                                          height: 25,
                                         ),
-                                        SizedBox(
-                                          height: 10,
-                                        ),
-                                        InkWell(
-                                          onTap: () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        SearchWordDetailPage(
-                                                          word: randomWordModel
-                                                                  ?.elementAt(
-                                                                      index)
-                                                                  .word ??
-                                                              "",
-                                                        )));
-                                          },
-                                          child: Text(
-                                              "Click here to more detail",
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.blue)),
+                                        Text(
+                                          "${value.dayWord?.publishDate?.year.toString() ?? ""}-${value.dayWord?.publishDate?.month.toString() ?? ""}-${value.dayWord?.publishDate?.day.toString() ?? ""}",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey,
+                                          ),
                                         ),
                                       ],
                                     ),
                                   )),
-                            );
-                          })),
-                    )
-                  : Center(child: CircularProgressIndicator())
-            ],
-          ),
-        ));
+                            ),
+                          )
+                        : CircularProgressIndicator();
+                  }),
+                  SizedBox(
+                    height: 12,
+                  ),
+                  Text(
+                    "Some Other Words",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  randomWordModel != null
+                      ? Container(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            child: ListView.builder(
+                                itemCount: randomWordModel?.length ?? 0,
+                                itemBuilder: ((context, index) {
+                                  return Container(
+                                    width: double.infinity,
+                                    child: InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SearchWordDetailPage(
+                                                      word: randomWordModel
+                                                              ?.elementAt(index)
+                                                              .word ??
+                                                          "",
+                                                    )));
+                                      },
+                                      child: Card(
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(5)),
+                                          elevation: 4,
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 10),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                        randomWordModel?[index]
+                                                                .word ??
+                                                            "",
+                                                        style: TextStyle(
+                                                            fontSize: 24,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            color:
+                                                                Colors.black)),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          flutterTts.speak(
+                                                              randomWordModel?[
+                                                                          index]
+                                                                      .word ??
+                                                                  "");
+                                                        },
+                                                        icon: Icon(
+                                                            Icons.volume_up))
+                                                  ],
+                                                ),
+                                                // SizedBox(
+                                                //   height: 2,
+                                                // ),
+                                              ],
+                                            ),
+                                          )),
+                                    ),
+                                  );
+                                })),
+                          ),
+                        )
+                      : Center(child: CircularProgressIndicator())
+                ],
+              ),
+            );
+          } else {
+            return SizedBox(
+              height: MediaQuery.of(context).size.height / 1.3,
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+        }))));
   }
 }

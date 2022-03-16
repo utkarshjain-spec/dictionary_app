@@ -1,5 +1,4 @@
 import 'package:dictionary_app/screens/search_word_detail_page.dart';
-import 'package:dictionary_app/screens/word_detail_page.dart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +14,7 @@ class DayOfWords extends StatefulWidget {
 }
 
 class _DayOfWordsState extends State<DayOfWords> {
+  bool isWordLoaded = false;
   FlutterTts _flutterTts = FlutterTts();
   String? word;
   late DateTime _dateTime;
@@ -32,6 +32,7 @@ class _DayOfWordsState extends State<DayOfWords> {
     wordState.getSelectedDateWOrd(date).then((value) {
       if (wordState.dayWord1?.word != null) {
         word = wordState.dayWord1?.word ?? "";
+        isWordLoaded = true;
         setState(() {});
       }
     });
@@ -41,6 +42,7 @@ class _DayOfWordsState extends State<DayOfWords> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 25, 85, 134),
         title: Text('Day of Word'),
       ),
       body: Column(
@@ -48,58 +50,53 @@ class _DayOfWordsState extends State<DayOfWords> {
           Consumer(builder: (BuildContext context, value, Widget? child) {
             return Container(
               width: double.infinity,
-              child: Card(
-                  elevation: 10,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Word of the Date ",
-                          style: TextStyle(
-                            fontSize: 18,
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => SearchWordDetailPage(
+                                word: word ?? "",
+                              )));
+                },
+                child: Card(
+                    elevation: 5,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Word of the Date ",
+                            style: TextStyle(
+                              fontSize: 18,
+                            ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            word != null
-                                ? Text(word ?? "",
-                                    style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.red))
-                                : CircularProgressIndicator(),
-                            IconButton(
-                                onPressed: () {
-                                  _flutterTts.speak(word ?? "");
-                                },
-                                icon: Icon(Icons.volume_up))
-                          ],
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => SearchWordDetailPage(
-                                          word: word ?? "",
-                                        )));
-                          },
-                          child: Text("Click here to more detail",
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.blue)),
-                        ),
-                      ],
-                    ),
-                  )),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              isWordLoaded
+                                  ? Text(word ?? "",
+                                      style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black))
+                                  : CircularProgressIndicator(),
+                              IconButton(
+                                  onPressed: () {
+                                    _flutterTts.speak(word ?? "");
+                                  },
+                                  icon: Icon(Icons.volume_up))
+                            ],
+                          ),
+                        ],
+                      ),
+                    )),
+              ),
             );
           }),
           TableCalendar(
@@ -111,6 +108,8 @@ class _DayOfWordsState extends State<DayOfWords> {
               return isSameDay(_dateTime, day);
             },
             onDaySelected: (date1, focusedDay) {
+              isWordLoaded = false;
+              setState(() {});
               _dateTime = date1;
 
               date = date1.year.toString() +
@@ -122,6 +121,7 @@ class _DayOfWordsState extends State<DayOfWords> {
               var wordState = Provider.of<WordState>(context, listen: false);
               wordState.getSelectedDateWOrd(date).then((value) {
                 if (wordState.dayWord1?.word != null) {
+                  isWordLoaded = true;
                   word = wordState.dayWord1?.word ?? "";
                   setState(() {});
                 }
@@ -129,10 +129,11 @@ class _DayOfWordsState extends State<DayOfWords> {
             },
             calendarStyle: CalendarStyle(
               isTodayHighlighted: true,
-              todayDecoration:
-                  BoxDecoration(color: Colors.red, shape: BoxShape.circle
-                      // borderRadius: BorderRadius.circular(10),
-                      ),
+              todayDecoration: BoxDecoration(
+                  color: Color.fromARGB(255, 25, 85, 134),
+                  shape: BoxShape.circle
+                  // borderRadius: BorderRadius.circular(10),
+                  ),
               selectedDecoration:
                   BoxDecoration(color: Colors.blue, shape: BoxShape.circle),
             ),

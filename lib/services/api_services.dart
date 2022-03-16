@@ -4,7 +4,7 @@ import 'package:dictionary_app/models/search_word_model.dart';
 import 'package:dictionary_app/models/word_audio_model.dart';
 import 'package:dictionary_app/models/word_example_modal.dart';
 import 'package:dictionary_app/services/api_string_keys.dart';
-import 'package:flutter/rendering.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -16,20 +16,25 @@ class ApiServices {
   static const String apiKey =
       "a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5";
 
-  Future<DayWord> getDayWord(String? date) async {
+  Future<DayWord?> getDayWord(String? date) async {
     DayWord? _dayWord;
 
     var url = Uri.parse(baseUrl + ApiKeysConst.getWordOfTheDay(date: date));
     var response = await http.get(url);
-    if (response.statusCode == 200) {
-      var jsonResponse = json.decode(response.body);
-      _dayWord = DayWord.fromJson(jsonResponse);
-    } else {
-      print(response.statusCode);
+    try {
+      if (response.statusCode == 200) {
+        var jsonResponse = json.decode(response.body);
+        _dayWord = DayWord.fromJson(jsonResponse);
+        return Future.value(_dayWord);
+      } else {
+        print(response.statusCode);
+        throw Exception('Data not found');
+      }
+    } catch (e) {
+      return null;
     }
     // var jsonResponse = json.decode(response.body);
     // DayWord _dayword = DayWord.fromJson(jsonResponse);
-    return Future.value(_dayWord);
   }
 
   Future<DayWord?> getSelectedDateWOrd(String? date) async {
@@ -145,7 +150,7 @@ class ApiServices {
         throw Exception('Failed to load Data');
       }
     } catch (e) {
-     return null;
+      return null;
     }
     // var jsonResponse = json.decode(response.body);
     // DayWord _dayword = DayWord.fromJson(jsonResponse);

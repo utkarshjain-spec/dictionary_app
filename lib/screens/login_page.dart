@@ -42,10 +42,10 @@ class _LoginPageState extends State<LoginPage> {
                       width: MediaQuery.of(context).size.width * 0.7,
                       child: SignInButton(Buttons.Google, onPressed: () {
                         signInWithGoogle().then((value) async {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => HomePage()));
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) => HomePage()));
 
                           Navigator.pushReplacement(
                               context,
