@@ -80,111 +80,165 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
         drawer: Container(
           color: Colors.white,
+          // height: double.infinity,
           width: MediaQuery.of(context).size.width * 0.7,
-          child: ListView(
-            children: <Widget>[
+          child: Column(
+            children: [
               Container(
-                color: Color.fromARGB(255, 25, 85, 134),
-                height: MediaQuery.of(context).size.height * 0.2,
-                child: Center(
-                  child: Text(
-                    isUserLoggedIn ? currentUserName ?? "" : "Guest",
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
+                height: MediaQuery.of(context).size.height * 1,
+                child: ListView(
+                  children: <Widget>[
+                    Container(
+                      color: Color.fromARGB(255, 38, 46, 53),
+                      height: MediaQuery.of(context).size.height * 0.3,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Colors.white,
+                              radius: 50,
+                              child: Icon(
+                                Icons.person,
+                                color: Colors.black,
+                                size: 50,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              isUserLoggedIn ? currentUserName ?? "" : "Guest",
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    ListTile(
+                      title: Row(
+                        children: [
+                          Icon(
+                            Icons.save,
+                            size: 23,
+                            color: Colors.black,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text('Save Word'),
+                        ],
+                      ),
+                      onTap: () {
+                        // LocalDataSaver.setSaveWord(SavedWords.savedWords);
+                        // Navigator.pop(context);
+                        if (isUserLoggedIn) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SaveWordsClass(),
+                            ),
+                          );
+                        } else {
+                          Navigator.pop(context);
+                          // SnackBar(content: Text('Please Login First'));
+                          final snackBar = SnackBar(
+                            content: Text('Please Login First'),
+                            action: SnackBarAction(
+                              label: 'Login',
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => LoginPage()));
+                                // Some code to undo the change.
+                              },
+                            ),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        }
+                      },
+                    ),
+                    ListTile(
+                      title: Row(
+                        children: [
+                          Icon(
+                            Icons.history,
+                            size: 23,
+                            color: Colors.black,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text('History'),
+                        ],
+                      ),
+                      onTap: () {
+                        //  Navigator.pop(context);
+                        // if (isUserLoggedIn) {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return HistoryClass();
+                        }));
+                      },
+                    ),
+                    ListTile(
+                      title: Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today,
+                            size: 23,
+                            color: Colors.black,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(' Word of days'),
+                        ],
+                      ),
+                      onTap: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return DayOfWords();
+                        }));
+                        // Navigator.pop(context);
+                      },
+                    ),
+                    ListTile(
+                      title: Row(
+                        children: [
+                          Icon(
+                            Icons.settings,
+                            size: 23,
+                            color: Colors.black,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text('Settings'),
+                        ],
+                      ),
+                      onTap: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return AppSetting();
+                        }));
+                        // Navigator.pop(context);
+                      },
+                    ),
+                    SizedBox(
+                      height: 50,
+                    ),
+                    Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(child: Text("version 1.0.0"))),
+                  ],
                 ),
               ),
-              // DrawerHeader(
-              //   child: Text('Drawer Header'),
-              //   decoration: BoxDecoration(
-              //     color: Colors.blue,
-              //   ),
-              // ),
-              ListTile(
-                title: Text('Save Word'),
-                onTap: () {
-                  // LocalDataSaver.setSaveWord(SavedWords.savedWords);
-                  // Navigator.pop(context);
-                  if (isUserLoggedIn) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SaveWordsClass(),
-                      ),
-                    );
-                  } else {
-                    Navigator.pop(context);
-                    // SnackBar(content: Text('Please Login First'));
-                    final snackBar = SnackBar(
-                      content: Text('Please Login First'),
-                      action: SnackBarAction(
-                        label: 'Login',
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => LoginPage()));
-                          // Some code to undo the change.
-                        },
-                      ),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  }
-                },
-              ),
-              ListTile(
-                title: Text('History'),
-                onTap: () {
-                  //  Navigator.pop(context);
-                  if (isUserLoggedIn) {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return HistoryClass();
-                    }));
-                  } else {
-                    Navigator.pop(context);
-                    // SnackBar(content: Text('Please Login First'));
-                    final snackBar = SnackBar(
-                      content: Text('Please Login First'),
-                      action: SnackBarAction(
-                        label: 'Login',
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => LoginPage()));
-                          // Some code to undo the change.
-                        },
-                      ),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  }
-                },
-              ),
-              ListTile(
-                title: Text(' Word of days'),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return DayOfWords();
-                  }));
-                  // Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Settings'),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return AppSetting();
-                  }));
-                  // Navigator.pop(context);
-                },
-              ),
-              SizedBox(
-                height: 50,
-              ),
-              Center(child: Text("version 1.0.0")),
             ],
           ),
         ),
@@ -273,12 +327,6 @@ class _HomePageState extends State<HomePage> {
                                                       flutterTts.speak(
                                                           value.dayWord?.word ??
                                                               "");
-
-                                                      // Provider.of<WordState>(context, listen: false)
-                                                      //     .getWordSound(value.dayWord?.word ?? "")
-                                                      //     .then((value) {
-                                                      //   audioPlayer.play(value.fileUrl!);
-                                                      // });
                                                     },
                                                     icon: Icon(Icons.volume_up))
                                               ],
@@ -345,7 +393,7 @@ class _HomePageState extends State<HomePage> {
                                               child: Padding(
                                                 padding: EdgeInsets.symmetric(
                                                     horizontal: 10,
-                                                    vertical: 10),
+                                                    vertical: 8),
                                                 child: Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
@@ -361,7 +409,7 @@ class _HomePageState extends State<HomePage> {
                                                                     .word ??
                                                                 "",
                                                             style: TextStyle(
-                                                                fontSize: 22,
+                                                                fontSize: 18,
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .w500,
@@ -379,9 +427,6 @@ class _HomePageState extends State<HomePage> {
                                                                 .volume_up))
                                                       ],
                                                     ),
-                                                    // SizedBox(
-                                                    //   height: 2,
-                                                    // ),
                                                   ],
                                                 ),
                                               )),

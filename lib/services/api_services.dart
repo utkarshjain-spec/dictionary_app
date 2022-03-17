@@ -25,7 +25,7 @@ class ApiServices {
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
         _dayWord = DayWord.fromJson(jsonResponse);
-        return Future.value(_dayWord);
+        return _dayWord;
       } else {
         print(response.statusCode);
         throw Exception('Data not found');
@@ -46,7 +46,7 @@ class ApiServices {
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
         _dayWord = DayWord.fromJson(jsonResponse);
-        return Future.value(_dayWord);
+        return _dayWord;
       } else {
         print(response.statusCode);
         throw Exception('Failed to load post');
@@ -104,10 +104,10 @@ class ApiServices {
       word: myword,
     ));
 
-    var response = await http.get(
-      url,
-    );
     try {
+      var response = await http.get(
+        url,
+      );
       if (response.statusCode == 200) {
         // var jsonResponse = json.decode(response.body);
         // _definitionModel = DefinitionModel.fromJson(jsonResponse);

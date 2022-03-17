@@ -2,14 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:html/parser.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-
 import 'package:dictionary_app/constants.dart';
 import 'package:dictionary_app/models/definition_modal.dart';
 import 'package:dictionary_app/models/word_example_modal.dart';
-
 import '../constants.dart';
 import '../local_data_saver.dart';
 import '../states/day_word_state.dart';
@@ -79,16 +76,18 @@ class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
         .getWordExamples(widget.word ?? "")
         .then((value) {
       isExampleLoaded = true;
-
-      widget.example = value;
+      if (value != null) {
+        widget.example = value;
+      }
       setState(() {});
     });
     Provider.of<WordState>(context, listen: false)
         .getWordDefinitions(widget.word ?? "")
         .then((value) {
       isDefinitionLoaded = true;
-
-      widget.definition = value;
+      if (value != null) {
+        widget.definition = value;
+      }
       setState(() {});
     });
     // TODO: implement initState
@@ -188,7 +187,7 @@ class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
                               Row(
                                 children: [
                                   IconButton(
-                                      onPressed: () async {
+                                      onPressed: () {
                                         String text = "";
                                         if (widget.word != null) {
                                           text = text + widget.word!;
@@ -197,82 +196,45 @@ class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
                                           for (int i = 0;
                                               i < widget.definition!.length;
                                               i++) {
-                                            text = text +
-                                                widget.definition![i].text!;
+                                            if (widget.definition![i].text !=
+                                                null) {
+                                              text = text +
+                                                  widget.definition![i].text!;
+                                            }
                                           }
                                         }
                                         if (widget.example != null) {
-                                          for (int i = 0;
-                                              i <
-                                                  widget.example!.examples!
-                                                      .length;
-                                              i++) {
-                                            text = text +
-                                                widget.example!.examples![i]
-                                                    .text!;
+                                          if (widget.example!.examples!.length <
+                                              6) {
+                                            for (int i = 0;
+                                                i <
+                                                    widget.example!.examples!
+                                                        .length;
+                                                i++) {
+                                              text = text +
+                                                  widget.example!.examples![i]
+                                                      .text!;
+                                            }
+                                          } else {
+                                            for (int i = 0; i < 6; i++) {
+                                              text = text +
+                                                  widget.example!.examples![i]
+                                                      .text!;
+                                            }
                                           }
                                         }
-                                        flutterTts.speak(text);
 
-                                        // Future _setAwaitOptions() async {
-                                        //   await flutterTts
-                                        //       .awaitS
-                                        // peakCompletion(true);
-                                        // }
-
-                                        // if (widget.definition != null) {
-                                        //   Future.delayed(Duration(seconds: 1),
-                                        //       () async {
-                                        //     await flutterTts
-                                        //         .speak(widget.word ?? "");
-                                        //     // _setAwaitOptions();
-                                        //   });
-
-                                        //   for (int i = 0;
-                                        //       i < widget.definition!.length;
-                                        //       i++) {
-                                        //     Future.delayed(Duration(seconds: 3),
-                                        //         () async {
-                                        //       flutterTts.speak(await widget
-                                        //               .definition?[i].text ??
-                                        //           "");
-                                        //     });
-                                        //   }
-                                        //   if (widget.example != null) {
-                                        //     for (int i = 0;
-                                        //         i <
-                                        //             widget.example!.examples!
-                                        //                 .length;
-                                        //         i++) {
-                                        //       Future.delayed(
-                                        //           Duration(seconds: 5),
-                                        //           () async {
-                                        //         await flutterTts.speak(widget
-                                        //                 .example
-                                        //                 ?.examples?[i]
-                                        //                 .text ??
-                                        //             "");
-                                        //       });
-                                        //     }
-                                        //   }
-                                        // }
+                                        Future.delayed(
+                                            Duration(milliseconds: 100),
+                                            () async {
+                                          await flutterTts
+                                              .speak(parse(text).body!.text);
+                                        });
                                       },
                                       icon: Icon(Icons.volume_up)),
                                   isUserLoggedIn
                                       ? IconButton(
                                           onPressed: () {
-                                            // if (_words != null) {
-                                            //   if (SavedWords.savedWords
-                                            //       .contains(widget.word ?? "")) {
-                                            //     SavedWords.savedWords
-                                            //         .remove(widget.word ?? "");
-                                            //     // setState(() {});
-                                            //   } else {
-                                            //     SavedWords.savedWords
-                                            //         .add(widget.word ?? "");
-                                            //     // setState(() {});
-                                            //   }
-                                            // }
                                             LocalDataSaver.getSaveWord()
                                                 .then((value) {
                                               setState(() {

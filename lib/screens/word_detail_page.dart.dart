@@ -215,34 +215,11 @@ class _DetailPageState extends State<DetailPage> {
                                                     .text!;
                                           }
                                         }
-                                        flutterTts
-                                            .speak(value.dayWord?.word ?? "");
-
-                                        // flutterTts
-                                        //     .speak(value.dayWord?.word ?? "");
-
-                                        // for (int i = 0;
-                                        //     i <
-                                        //         value.dayWord!.definitions!
-                                        //             .length;
-                                        //     i++) {
-                                        //   Future.delayed(Duration(seconds: 2),
-                                        //       () {
-                                        //     flutterTts.speak(value.dayWord
-                                        //             ?.definitions?[i].text ??
-                                        //         "");
-                                        //   });
-                                        // }
-                                        // for (int i = 0;
-                                        //     i < value.dayWord!.examples!.length;
-                                        //     i++) {
-                                        //   Future.delayed(Duration(seconds: 5),
-                                        //       () {
-                                        //     flutterTts.speak(value.dayWord
-                                        //             ?.examples?[i].text ??
-                                        //         "");
-                                        //   });
-                                        // }
+                                        Future.delayed(
+                                            Duration(milliseconds: 100),
+                                            () async {
+                                          await flutterTts.speak(text);
+                                        });
                                       },
                                       icon: Icon(Icons.volume_up)),
                                   isUserLoggedIn
