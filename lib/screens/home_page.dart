@@ -270,6 +270,7 @@ class _HomePageState extends State<HomePage> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Consumer<WordState>(
                           builder: (BuildContext context, value, child) {
@@ -351,90 +352,88 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(
                         height: 12,
                       ),
-                      Text(
-                        "Some Other Words",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(
+                          "Some other Words",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
                       ),
                       SizedBox(
                         height: 5,
                       ),
                       randomWordModel != null
-                          ? Container(
-                              height: MediaQuery.of(context).size.height * 0.6,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 15),
-                                child: ListView.builder(
-                                  physics: NeverScrollableScrollPhysics(), 
-                                    itemCount: randomWordModel?.length ?? 0,
-                                    itemBuilder: ((context, index) {
-                                      return Container(
-                                        width: double.infinity,
-                                        child: InkWell(
-                                          onTap: () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        SearchWordDetailPage(
-                                                          word: randomWordModel
-                                                                  ?.elementAt(
-                                                                      index)
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                              child: ListView.builder(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: randomWordModel?.length ?? 0,
+                                  itemBuilder: ((context, index) {
+                                    return Container(
+                                      width: double.infinity,
+                                      child: InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      SearchWordDetailPage(
+                                                        word: randomWordModel
+                                                                ?.elementAt(
+                                                                    index)
+                                                                .word ??
+                                                            "",
+                                                      )));
+                                        },
+                                        child: Card(
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                            elevation: 2,
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 10, vertical: 8),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                          randomWordModel?[
+                                                                      index]
                                                                   .word ??
                                                               "",
-                                                        )));
-                                          },
-                                          child: Card(
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              elevation: 2,
-                                              child: Padding(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 8),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                            randomWordModel?[
-                                                                        index]
-                                                                    .word ??
-                                                                "",
-                                                            style: TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                color: Colors
-                                                                    .black)),
-                                                        IconButton(
-                                                            onPressed: () {
-                                                              flutterTts.speak(
-                                                                  randomWordModel?[
-                                                                              index]
-                                                                          .word ??
-                                                                      "");
-                                                            },
-                                                            icon: Icon(Icons
-                                                                .volume_up))
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              )),
-                                        ),
-                                      );
-                                    })),
-                              ),
+                                                          style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              color: Colors
+                                                                  .black)),
+                                                      IconButton(
+                                                          onPressed: () {
+                                                            flutterTts.speak(
+                                                                randomWordModel?[
+                                                                            index]
+                                                                        .word ??
+                                                                    "");
+                                                          },
+                                                          icon: Icon(
+                                                              Icons.volume_up))
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            )),
+                                      ),
+                                    );
+                                  })),
                             )
                           : Center(child: CircularProgressIndicator())
                     ],

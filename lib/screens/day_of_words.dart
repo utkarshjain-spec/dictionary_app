@@ -140,9 +140,9 @@ class _DayOfWordsState extends State<DayOfWords> {
                   if (wordState.dayWord1?.word != null) {
                     isWordLoaded = true;
                     word = wordState.dayWord1?.word ?? "";
-                    if (mounted) {
-                      setState(() {});
-                    }
+                    // if (mounted) {
+                    setState(() {});
+                    // }
                   }
                 });
               });

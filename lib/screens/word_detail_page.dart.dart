@@ -51,10 +51,14 @@ class _DetailPageState extends State<DetailPage> {
     if (user != null) {
       isUserLoggedIn = true;
 
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     } else {
       isUserLoggedIn = false;
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 
@@ -91,8 +95,10 @@ class _DetailPageState extends State<DetailPage> {
     LocalDataSaver.getSaveWord().then((value) {
       if (mounted) {
         setState(() {
-          _words = value;
-          SavedWords.savedWords = value!;
+          if (value != null) {
+            _words = value;
+            SavedWords.savedWords = value;
+          }
 
           // setState(() {});
         });
@@ -146,8 +152,8 @@ class _DetailPageState extends State<DetailPage> {
         setState(() {});
       });
     });
-    bool alreadySaved = _words?.contains(word) ?? false;
-    // setState(() {});
+    final bool alreadySaved = _words?.contains(word) ?? false;
+    setState(() {});
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 25, 85, 134),
@@ -291,6 +297,8 @@ class _DetailPageState extends State<DetailPage> {
                           ),
                         ),
                       ),
+                      // if (value.dayWord!.definitions!.isNotEmpty &&
+                      //     value.dayWord!.definitions != null)
                       Card(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
@@ -298,11 +306,13 @@ class _DetailPageState extends State<DetailPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              //  value.dayWord!.definitions!.isNotEmpty
                               Text(
                                 'Definations',
                                 style:
                                     TextStyle(color: Colors.red, fontSize: 16),
                               ),
+
                               SizedBox(height: 10),
                               ListView.builder(
                                 itemCount: value.dayWord?.definitions?.length,

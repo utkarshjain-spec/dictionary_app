@@ -10,6 +10,15 @@ import 'dart:convert';
 
 import '../models/day_word_model.dart';
 
+class ApiData<T> {
+  final T? data;
+  final String? message;
+
+  final int? stateCode;
+
+  ApiData({this.data, this.message, this.stateCode});
+}
+
 class ApiServices {
   // ApiKeysConst apiKeysConst = ApiKeysConst();
   static const String baseUrl = "https://api.wordnik.com/";
@@ -42,7 +51,7 @@ class ApiServices {
 
     var url = Uri.parse(baseUrl + ApiKeysConst.getWordOfTheDay(date: date));
     var response = await http.get(url);
-   
+
     try {
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);
@@ -98,7 +107,8 @@ class ApiServices {
     throw Exception('Failed to load word sound');
   }
 
-  Future<List<DefinitionModel>?> getWordDefinitions(String myword) async {
+  Future<ApiData<List<DefinitionModel>?>> getWordDefinitions(
+      String myword) async {
     List<DefinitionModel>? _definitionModel;
 
     var url = Uri.parse(ApiKeysConst.getWordDefinition(
@@ -116,18 +126,21 @@ class ApiServices {
             .map((i) => DefinitionModel.fromJson(i))
             .toList();
 
-        return Future.value(_definitionModel);
+        return Future.value(ApiData(
+          data: _definitionModel,
+          stateCode: response.statusCode,
+        ));
       } else {
         throw Exception('Failed to load Data');
       }
     } catch (e) {
-      return null;
+      return Future.value(ApiData(message: e.toString(), data: null));
     }
     // var jsonResponse = json.decode(response.body);
     // DayWord _dayword = DayWord.fromJson(jsonResponse);
   }
 
-  Future<WordExampleModal?> getWordExamples(String myword) async {
+  Future<ApiData<WordExampleModal>?> getWordExamples(String myword) async {
     WordExampleModal? _wordExampleModal;
 
     var url = Uri.parse(ApiKeysConst.getWordExample(
@@ -146,7 +159,10 @@ class ApiServices {
 
         //     .map((i) => WordExampleModal.fromJson(i))
         //     .toList();
-        return Future.value(_wordExampleModal);
+        return Future.value(ApiData(
+          data: _wordExampleModal,
+          stateCode: response.statusCode,
+        ));
       } else if (response.statusCode == 404) {
         print("Not Found");
       } else if (response.statusCode == 500) {
@@ -155,7 +171,7 @@ class ApiServices {
         throw Exception('Failed to load Data');
       }
     } catch (e) {
-      return null;
+      return ApiData(message: e.toString(), data: null);
     }
     // var jsonResponse = json.decode(response.body);
     // DayWord _dayword = DayWord.fromJson(jsonResponse);

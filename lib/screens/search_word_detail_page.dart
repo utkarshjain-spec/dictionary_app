@@ -13,6 +13,7 @@ import '../states/day_word_state.dart';
 
 class SearchWordDetailPage extends StatefulWidget {
   String? word;
+
   List<DefinitionModel>? definition;
   WordExampleModal? example;
 
@@ -26,6 +27,8 @@ class SearchWordDetailPage extends StatefulWidget {
 }
 
 class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
+  int definitionStatusCode = 0;
+  int exampleStatusCode = 0;
   List<String>? _words;
   List<String>? _historyWords = [];
   bool isDefinitionLoaded = false;
@@ -76,8 +79,9 @@ class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
         .getWordExamples(widget.word ?? "")
         .then((value) {
       isExampleLoaded = true;
-      if (value != null) {
-        widget.example = value;
+      if (value.stateCode != null && value.data != null) {
+        widget.example = value.data;
+        exampleStatusCode = value.stateCode!;
       }
       if (mounted) {
         setState(() {});
@@ -87,8 +91,12 @@ class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
         .getWordDefinitions(widget.word ?? "")
         .then((value) {
       isDefinitionLoaded = true;
-      if (value != null) {
-        widget.definition = value;
+      if (value.stateCode != null && value.data != null) {
+        // value.stateCode == 200
+        //     ? widget.definition = value.data
+        //     : widget.definition = [];
+        definitionStatusCode = value.stateCode!;
+        widget.definition = value.data;
       }
       if (mounted) {
         setState(() {});
@@ -287,78 +295,80 @@ class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
                       SizedBox(
                         height: 10,
                       ),
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Definations',
-                                style:
-                                    TextStyle(color: Colors.red, fontSize: 16),
-                              ),
-                              SizedBox(height: 10),
-                              ListView.builder(
-                                itemCount: widget.definition?.length ?? 0,
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemBuilder: ((context, index) {
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(parse(
-                                              widget.definition?[index].text ??
-                                                  "No definition Found" + "\n")
-                                          .body!
-                                          .text),
-                                      SizedBox(height: 10),
-                                    ],
-                                  );
-                                }),
-                              ),
-                            ],
+                      if (definitionStatusCode == 200)
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Definations',
+                                  style: TextStyle(
+                                      color: Colors.red, fontSize: 16),
+                                ),
+                                SizedBox(height: 10),
+                                ListView.builder(
+                                  itemCount: widget.definition?.length ?? 0,
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  itemBuilder: ((context, index) {
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(parse(widget
+                                                    .definition?[index].text ??
+                                                "No definition Found" + "\n")
+                                            .body!
+                                            .text),
+                                        SizedBox(height: 10),
+                                      ],
+                                    );
+                                  }),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
                       SizedBox(height: 10),
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Examples',
-                                style:
-                                    TextStyle(color: Colors.red, fontSize: 16),
-                              ),
-                              SizedBox(height: 10),
-                              ListView.builder(
-                                itemBuilder: ((context, index) {
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(widget
-                                              .example?.examples?[index].text ??
-                                          "No Example Found"),
-                                      SizedBox(height: 10),
-                                    ],
-                                  );
-                                }),
-                                itemCount:
-                                    widget.example?.examples?.length ?? 0,
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                              ),
-                            ],
+                      if (exampleStatusCode == 200)
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Examples',
+                                  style: TextStyle(
+                                      color: Colors.red, fontSize: 16),
+                                ),
+                                SizedBox(height: 10),
+                                ListView.builder(
+                                  itemBuilder: ((context, index) {
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(widget.example?.examples?[index]
+                                                .text ??
+                                            "No Example Found"),
+                                        SizedBox(height: 10),
+                                      ],
+                                    );
+                                  }),
+                                  itemCount:
+                                      widget.example?.examples?.length ?? 0,
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 );
