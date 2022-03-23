@@ -68,7 +68,7 @@ class WordState extends ChangeNotifier {
 
   Future<List<RandomWordModel>> getRandomWord() async {
     return _apiServices.getRandomWord().then((value) {
-      return value!;
+      return value ?? [];
     });
   }
 

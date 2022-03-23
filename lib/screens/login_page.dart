@@ -76,10 +76,18 @@ class _LoginPageState extends State<LoginPage> {
                                   MaterialStateProperty.all(Colors.white),
                             ),
                             onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => HomePage()));
+                              Navigator.pushAndRemoveUntil(context,
+                                  MaterialPageRoute(builder: ((context) {
+                                return HomePage();
+                              })), (route) => false);
+                              // Navigator.pushReplacement(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //         builder: (context) => HomePage()));
+                              // Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //         builder: (context) => HomePage()));
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(

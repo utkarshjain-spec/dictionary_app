@@ -79,7 +79,9 @@ class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
       if (value != null) {
         widget.example = value;
       }
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
     Provider.of<WordState>(context, listen: false)
         .getWordDefinitions(widget.word ?? "")
@@ -88,7 +90,9 @@ class _SearchWordDetailPageState extends State<SearchWordDetailPage> {
       if (value != null) {
         widget.definition = value;
       }
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
     // TODO: implement initState
     super.initState();

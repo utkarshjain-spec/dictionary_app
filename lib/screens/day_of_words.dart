@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../states/day_word_state.dart';
+import 'dart:async';
 
 class DayOfWords extends StatefulWidget {
   const DayOfWords({Key? key}) : super(key: key);
@@ -14,11 +15,14 @@ class DayOfWords extends StatefulWidget {
 }
 
 class _DayOfWordsState extends State<DayOfWords> {
+  Timer? _debounce;
+
   bool isWordLoaded = false;
   FlutterTts _flutterTts = FlutterTts();
   String? word;
   late DateTime _dateTime;
   String? date;
+  @override
   @override
   void initState() {
     super.initState();
@@ -33,9 +37,18 @@ class _DayOfWordsState extends State<DayOfWords> {
       if (wordState.dayWord1?.word != null) {
         word = wordState.dayWord1?.word ?? "";
         isWordLoaded = true;
-        setState(() {});
+        if (mounted) {
+          setState(() {});
+        }
       }
     });
+  }
+
+  @override
+  void dispose() {
+    // _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
   }
 
   @override
@@ -109,7 +122,9 @@ class _DayOfWordsState extends State<DayOfWords> {
             },
             onDaySelected: (date1, focusedDay) {
               isWordLoaded = false;
-              setState(() {});
+              if (mounted) {
+                setState(() {});
+              }
               _dateTime = date1;
 
               date = date1.year.toString() +
@@ -118,13 +133,18 @@ class _DayOfWordsState extends State<DayOfWords> {
                   '-' +
                   date1.day.toString();
 
-              var wordState = Provider.of<WordState>(context, listen: false);
-              wordState.getSelectedDateWOrd(date).then((value) {
-                if (wordState.dayWord1?.word != null) {
-                  isWordLoaded = true;
-                  word = wordState.dayWord1?.word ?? "";
-                  setState(() {});
-                }
+              if (_debounce?.isActive ?? false) _debounce?.cancel();
+              _debounce = Timer(const Duration(milliseconds: 500), () {
+                var wordState = Provider.of<WordState>(context, listen: false);
+                wordState.getSelectedDateWOrd(date).then((value) {
+                  if (wordState.dayWord1?.word != null) {
+                    isWordLoaded = true;
+                    word = wordState.dayWord1?.word ?? "";
+                    if (mounted) {
+                      setState(() {});
+                    }
+                  }
+                });
               });
             },
             calendarStyle: CalendarStyle(

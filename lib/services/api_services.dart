@@ -42,6 +42,7 @@ class ApiServices {
 
     var url = Uri.parse(baseUrl + ApiKeysConst.getWordOfTheDay(date: date));
     var response = await http.get(url);
+   
     try {
       if (response.statusCode == 200) {
         var jsonResponse = json.decode(response.body);

@@ -16,4 +16,5 @@ class ApiKeysConst {
 
   static String getWordExample({required String word}) =>
       "https://api.wordnik.com/v4/word.json/$word/examples?limit=50&includeDuplicates=false&useCanonical=false&skip=0&api_key=q095std75p9uysknwxmaxeyw0zqzsaa0spj8jln0rm9tiv653";
+    
 }

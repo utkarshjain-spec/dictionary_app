@@ -366,6 +366,7 @@ class _HomePageState extends State<HomePage> {
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 15),
                                 child: ListView.builder(
+                                  physics: NeverScrollableScrollPhysics(), 
                                     itemCount: randomWordModel?.length ?? 0,
                                     itemBuilder: ((context, index) {
                                       return Container(

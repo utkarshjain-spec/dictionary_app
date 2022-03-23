@@ -37,8 +37,20 @@ class _DetailPageState extends State<DetailPage> {
   Future<bool?> checkUser() async {
     final FirebaseAuth auth = FirebaseAuth.instance;
     final user = await auth.currentUser;
+    // if (mounted) {
+    //   if (user != null) {
+    //     isUserLoggedIn = true;
+    //     setState(() {});
+    //   } else {
+    //     isUserLoggedIn = false;
+    //     setState(() {});
+    //   }
+    // } else {
+    //   return null;
+    // }
     if (user != null) {
       isUserLoggedIn = true;
+
       setState(() {});
     } else {
       isUserLoggedIn = false;
@@ -49,10 +61,12 @@ class _DetailPageState extends State<DetailPage> {
   @override
   void initState() {
     LocalDataSaver.getSaveWord().then((value) {
-      setState(() {
-        _words = value;
-        setState(() {});
-      });
+      if (mounted) {
+        setState(() {
+          _words = value;
+          setState(() {});
+        });
+      }
     });
 
     checkUser();
@@ -75,11 +89,14 @@ class _DetailPageState extends State<DetailPage> {
       }
     });
     LocalDataSaver.getSaveWord().then((value) {
-      setState(() {
-        _words = value;
-        SavedWords.savedWords = value!;
-        setState(() {});
-      });
+      if (mounted) {
+        setState(() {
+          _words = value;
+          SavedWords.savedWords = value!;
+
+          // setState(() {});
+        });
+      }
     });
 
     _dateTime = DateTime.now();
@@ -91,12 +108,14 @@ class _DetailPageState extends State<DetailPage> {
 
     var wordState = Provider.of<WordState>(context, listen: false);
     wordState.getDayWord(date).then((value) {
-      setState(() {
-        isExampleLoaded = true;
-        isDefinitionLoaded = true;
-        word = wordState.dayWord?.word;
-        Definition = wordState.dayWord?.definitions?[0].text;
-      });
+      if (mounted) {
+        setState(() {
+          isExampleLoaded = true;
+          isDefinitionLoaded = true;
+          word = wordState.dayWord?.word;
+          Definition = wordState.dayWord?.definitions?[0].text;
+        });
+      }
     }).then((value) {
       // SavedWords.history.add(word ?? "");
       // LocalDataSaver.setHistory(SavedWords.history);

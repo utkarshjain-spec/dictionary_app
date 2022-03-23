@@ -8,27 +8,32 @@ final GoogleSignIn googleSignIn = GoogleSignIn();
 //Sign in Function
 
 Future<User?> signInWithGoogle() async {
-  final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
-  final GoogleSignInAuthentication googleSignInAuthentication =
-      await googleSignInAccount!.authentication;
+  try {
+    final GoogleSignInAccount? googleSignInAccount =
+        await googleSignIn.signIn();
+    final GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount!.authentication;
 
-  final AuthCredential credential = GoogleAuthProvider.credential(
-    accessToken: googleSignInAuthentication.accessToken,
-    idToken: googleSignInAuthentication.idToken,
-  );
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
+    );
 
-  final userCredential = await _auth.signInWithCredential(credential);
-  final User? user = userCredential.user;
+    final userCredential = await _auth.signInWithCredential(credential);
+    final User? user = userCredential.user;
 
-  assert(!user!.isAnonymous);
-  assert(await user!.getIdToken() != null);
+    assert(!user!.isAnonymous);
+    assert(await user!.getIdToken() != null);
 
-  final User? currentUser = await _auth.currentUser;
-  assert(currentUser!.uid == user!.uid);
-  print(user);
-  // LocalDataSaver.saveName(user!.displayName.toString());
+    final User? currentUser = await _auth.currentUser;
+    assert(currentUser!.uid == user!.uid);
+    print(user);
+    // LocalDataSaver.saveName(user!.displayName.toString());
 
-  return user;
+    return user;
+  } catch (e) {
+    print(e);
+  }
 }
 
 Future<bool> signOut() async {
